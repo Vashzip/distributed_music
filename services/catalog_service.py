@@ -25,27 +25,47 @@ MUSIC_DB = [
     {"id": 10, "title": "Me Porto Bonito", "artist": "Bad Bunny & Chencho Corleone", "genre": "Pop Latino"},
 ]
 
-QUEUE = "catalog_queue"
+QUEUE = "catalog_rpc"
 
 def on_request(ch, method, props, body):
-    request = json.loads(body)
-    action = request.get("action")
+    try:
+        request = json.loads(body)
+        action = request.get("action")
 
-    if action == "search_music":
-        query = request.get("query", "").lower()
-        result = [
-            m for m in MUSIC_DB
-            if query in m["title"].lower()
-            or query in m["artist"].lower()
-            or query in m["genre"].lower()
-        ]
-        response = {"result": result}
+        if action == "search_music":
+            query = request.get("query", "").lower()
+            if not query:
+                response = {"error": "query é obrigatório"}
+            else:
+                result = [
+                    m for m in MUSIC_DB
+                    if query in m["title"].lower()
+                    or query in m["artist"].lower()
+                    or query in m["genre"].lower()
+                ]
+                response = {"result": result}
 
-    elif action == "list_all":
-        response = {"result": MUSIC_DB}
+        elif action == "list_all":
+            response = {"result": MUSIC_DB}
 
-    else:
-        response = {"error": "Ação inválida"}
+        elif action == "get_song_by_id":
+            song_id = request.get("song_id")
+            if not song_id:
+                response = {"error": "song_id é obrigatório"}
+            else:
+                song = next((m for m in MUSIC_DB if m["id"] == song_id), None)
+                if song:
+                    response = {"result": song}
+                else:
+                    response = {"error": "Música não encontrada"}
+
+        else:
+            response = {"error": "Ação inválida"}
+
+    except json.JSONDecodeError:
+        response = {"error": "JSON inválido"}
+    except Exception as e:
+        response = {"error": f"Erro interno: {str(e)}"}
 
     ch.basic_publish(
         exchange="",

@@ -3,17 +3,40 @@ import pika
 from messaging import get_connection, RpcClient
 
 def on_request(ch, method, props, body):
-    request = json.loads(body)
-    action = request.get('action')
+    try:
+        request = json.loads(body)
+        action = request.get('action')
+        response = {}
 
-    rpc = RpcClient()
+        rpc = RpcClient()
 
-    if action == 'search_music':
-        response = rpc.call('catalog_rpc', request)
-    elif action == 'create_playlist':
-        response = rpc.call('playlist_rpc', request)
-    else:
-        response = {'error': 'Ação desconhecida'}
+        if action == 'search_music':
+            response = rpc.call('catalog_rpc', request)
+        elif action == 'list_all':
+            response = rpc.call('catalog_rpc', request)
+        elif action == 'get_song_by_id':
+            response = rpc.call('catalog_rpc', request)
+        elif action == 'create_playlist':
+            response = rpc.call('playlist_rpc', request)
+        elif action == 'add_song_to_playlist':
+            response = rpc.call('playlist_rpc', request)
+        elif action == 'get_playlist':
+            response = rpc.call('playlist_rpc', request)
+        elif action == 'list_user_playlists':
+            response = rpc.call('playlist_rpc', request)
+        elif action == 'get_user_history':
+            response = rpc.call('user_rpc', request)
+        elif action == 'get_user_info':
+            response = rpc.call('user_rpc', request)
+        elif action == 'register_play':
+            response = rpc.call('user_rpc', request)
+        else:
+            response = {'error': 'Ação desconhecida'}
+
+    except json.JSONDecodeError:
+        response = {'error': 'JSON inválido na requisição'}
+    except Exception as e:
+        response = {'error': f'Erro no gateway: {str(e)}'}
 
     ch.basic_publish(
         exchange='',
