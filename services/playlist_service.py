@@ -91,12 +91,16 @@ def on_request(ch, method, props, body):
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
 
-connection = get_connection()
-channel = connection.channel()
+def main():
+    connection = get_connection()
+    channel = connection.channel()
 
-channel.queue_declare(queue='playlist_rpc')
-channel.basic_qos(prefetch_count=1)
-channel.basic_consume(queue='playlist_rpc', on_message_callback=on_request)
+    channel.queue_declare(queue='playlist_rpc')
+    channel.basic_qos(prefetch_count=1)
+    channel.basic_consume(queue='playlist_rpc', on_message_callback=on_request)
 
-print("📂 Serviço de playlists ativo...")
-channel.start_consuming()
+    print("📂 Serviço de playlists ativo...")
+    channel.start_consuming()
+
+if __name__ == "__main__":
+    main()

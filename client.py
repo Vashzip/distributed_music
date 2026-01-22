@@ -1,6 +1,6 @@
 import json
 import time
-from messaging import RpcClient, publish
+from messaging import RpcClient
 
 def print_response(action, response):
     print(f"\n{'='*50}")

@@ -33,15 +33,16 @@ def on_request(ch, method, props, body):
         action = request.get("action")
 
         if action == "search_music":
-            query = request.get("query", "").lower()
+            query = request.get("query", "")
             if not query:
                 response = {"error": "query é obrigatório"}
             else:
+                query = str(query).lower()
                 result = [
                     m for m in MUSIC_DB
                     if query in m["title"].lower()
                     or query in m["artist"].lower()
-                    or query in m["genre"].lower()
+                    or (m["genre"] and query in m["genre"].lower())
                 ]
                 response = {"result": result}
 
