@@ -1,22 +1,19 @@
-# Ambiente virtual
-venv/
-env/
-ENV/
-.venv
-
-# Python
 __pycache__/
 *.py[cod]
-*$py.class
-*.so
-.Python
+*.pyc
+*.pyo
 
-# IDEs
+.env
+.venv
+venv/
+env/
+
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS
 .DS_Store
 Thumbs.db
+
+
