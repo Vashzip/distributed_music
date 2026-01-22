@@ -3,7 +3,22 @@ import pika
 from messaging import get_connection, RpcClient
 
 
-rpc_client = RpcClient()
+import json
+import pika
+from messaging import get_connection, RpcClient
+
+
+rpc_client = None
+
+def get_rpc_client():
+    global rpc_client
+    try:
+        if rpc_client is None or rpc_client.connection.is_closed:
+            rpc_client = RpcClient()
+    except Exception as e:
+        print(f"Erro ao conectar RpcClient: {e}")
+        return None
+    return rpc_client
 
 def on_request(ch, method, props, body):
     try:
@@ -11,26 +26,29 @@ def on_request(ch, method, props, body):
         action = request.get('action')
         response = {}
 
-        if action == 'search_music':
-            response = rpc_client.call('catalog_rpc', request)
+        client = get_rpc_client()
+        if not client:
+            response = {'error': 'Serviço indisponível (RPC Client failed)'}
+        elif action == 'search_music':
+            response = client.call('catalog_rpc', request)
         elif action == 'list_all':
-            response = rpc_client.call('catalog_rpc', request)
+            response = client.call('catalog_rpc', request)
         elif action == 'get_song_by_id':
-            response = rpc_client.call('catalog_rpc', request)
+            response = client.call('catalog_rpc', request)
         elif action == 'create_playlist':
-            response = rpc_client.call('playlist_rpc', request)
+            response = client.call('playlist_rpc', request)
         elif action == 'add_song_to_playlist':
-            response = rpc_client.call('playlist_rpc', request)
+            response = client.call('playlist_rpc', request)
         elif action == 'get_playlist':
-            response = rpc_client.call('playlist_rpc', request)
+            response = client.call('playlist_rpc', request)
         elif action == 'list_user_playlists':
-            response = rpc_client.call('playlist_rpc', request)
+            response = client.call('playlist_rpc', request)
         elif action == 'get_user_history':
-            response = rpc_client.call('user_rpc', request)
+            response = client.call('user_rpc', request)
         elif action == 'get_user_info':
-            response = rpc_client.call('user_rpc', request)
+            response = client.call('user_rpc', request)
         elif action == 'register_play':
-            response = rpc_client.call('user_rpc', request)
+            response = client.call('user_rpc', request)
         else:
             response = {'error': 'Ação desconhecida'}
 

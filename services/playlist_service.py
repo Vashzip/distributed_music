@@ -7,7 +7,7 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 )
 
-from messaging import get_connection, publish
+from messaging import get_connection
 
 PLAYLISTS = {}
 playlist_counter = 1

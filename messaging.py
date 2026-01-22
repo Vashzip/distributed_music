@@ -1,6 +1,7 @@
 import pika
 import json
 import uuid
+import time
 
 RABBITMQ_HOST = 'localhost'
 
@@ -64,7 +65,6 @@ class RpcClient:
                 body=json.dumps(message)
             )
 
-            import time
             start_time = time.time()
             while self.response is None:
                 self.connection.process_data_events(time_limit=1)
