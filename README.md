@@ -71,6 +71,9 @@ brew services start rabbitmq
 ### 2. Configurar Ambiente Virtual
 
 ```bash
+# Navegar para o diretório do projeto
+cd /home/vash/distributed_music
+
 # Criar ambiente virtual
 python3 -m venv venv
 
@@ -83,49 +86,140 @@ pip install -r requirements.txt
 
 ## ▶️ Execução
 
-### Passo 1: Iniciar RabbitMQ
+O sistema precisa de **5 terminais separados** rodando simultaneamente. Cada componente deve estar em execução antes do próximo.
+
+### ⚠️ Ordem de Inicialização
+
+1. **RabbitMQ** (deve estar rodando)
+2. **Catalog Service**
+3. **Playlist Service**
+4. **User Service**
+5. **Gateway**
+6. **Cliente** (executa as operações e encerra)
+
+### Passo 1: Verificar RabbitMQ
 
 Certifique-se de que o RabbitMQ está rodando:
 ```bash
 sudo systemctl status rabbitmq-server
 # ou
-rabbitmq-server
+rabbitmqctl status
+```
+
+Se não estiver rodando, inicie:
+```bash
+sudo systemctl start rabbitmq-server
 ```
 
 ### Passo 2: Iniciar os Serviços
 
-Abra terminais separados e execute cada serviço:
+Abra **4 terminais separados** e execute cada serviço na ordem especificada:
 
 **Terminal 1 - Catalog Service:**
 ```bash
+cd /home/vash/distributed_music
 source venv/bin/activate
 python services/catalog_service.py
 ```
+**Saída esperada:** `🎵 Catalog Service (Top BR) rodando...`
 
 **Terminal 2 - Playlist Service:**
 ```bash
+cd /home/vash/distributed_music
 source venv/bin/activate
 python services/playlist_service.py
 ```
+**Saída esperada:** `📂 Serviço de playlists ativo...`
 
 **Terminal 3 - User Service:**
 ```bash
+cd /home/vash/distributed_music
 source venv/bin/activate
 python services/user_service.py
 ```
+**Saída esperada:** `👤 Serviço de usuários ativo...`
 
 **Terminal 4 - Gateway:**
 ```bash
+cd /home/vash/distributed_music
 source venv/bin/activate
 python gateway.py
 ```
+**Saída esperada:** `🚪 Gateway aguardando requisições...`
 
 ### Passo 3: Executar o Cliente
 
 **Terminal 5 - Cliente:**
 ```bash
+cd /home/vash/distributed_music
 source venv/bin/activate
 python client.py
+```
+
+O cliente executará automaticamente todas as operações:
+- Busca de músicas
+- Listagem de catálogo
+- Criação de playlists
+- Adição de músicas às playlists
+- Consulta de histórico
+- Registro de reproduções
+
+### 🛑 Encerrando o Sistema
+
+Para encerrar o sistema, pressione `Ctrl+C` em cada terminal na ordem inversa:
+1. Cliente (se ainda estiver rodando)
+2. Gateway
+3. User Service
+4. Playlist Service
+5. Catalog Service
+
+### 🔍 Verificando se está funcionando
+
+**Verificar filas no RabbitMQ:**
+```bash
+rabbitmqctl list_queues
+```
+
+Você deve ver as seguintes filas quando os serviços estiverem rodando:
+- `gateway_rpc`
+- `catalog_rpc`
+- `playlist_rpc`
+- `user_rpc`
+- `play_history_events` (quando houver eventos)
+
+## ⚠️ Solução de Problemas
+
+### Erro: "ModuleNotFoundError: No module named 'pika'"
+
+**Solução:** Certifique-se de que o ambiente virtual está ativado e instale as dependências:
+```bash
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+### Erro: "Connection refused" ou "Cannot connect to RabbitMQ"
+
+**Solução:** Inicie o RabbitMQ:
+```bash
+sudo systemctl start rabbitmq-server
+# ou
+sudo systemctl restart rabbitmq-server
+```
+
+### Erro: "Queue not found" ou timeout
+
+**Solução:** Certifique-se de que todos os serviços estão rodando na ordem correta:
+1. Catalog Service
+2. Playlist Service  
+3. User Service
+4. Gateway
+5. Cliente
+
+### Os serviços não respondem
+
+**Solução:** Verifique se o RabbitMQ está rodando e se todas as conexões estão ativas:
+```bash
+rabbitmqctl list_connections
 ```
 
 ## 📝 Funcionalidades Implementadas
@@ -246,6 +340,7 @@ distributed_music/
 ├── requirements.txt          # Dependências Python
 ├── .gitignore               # Arquivos ignorados pelo Git
 ├── README.md                # Este arquivo
+├── COMO_EXECUTAR.md         # Guia detalhado de execução
 └── services/
     ├── catalog_service.py   # Serviço de catálogo
     ├── playlist_service.py  # Serviço de playlists
@@ -263,9 +358,11 @@ distributed_music/
 
 ## ⚠️ Notas Importantes
 
-- O sistema usa armazenamento em memória (dados são perdidos ao reiniciar serviços)
-- Tratamento de erros básico está implementado
-- Timeout padrão de 30 segundos para requisições RPC
+- **Ordem é importante**: Os serviços devem ser iniciados na ordem especificada
+- **Mantenha todos os terminais abertos**: Cada serviço precisa estar rodando simultaneamente
+- **Dados em memória**: Os dados são armazenados em memória e serão perdidos ao reiniciar os serviços
+- **Timeout**: O sistema tem timeout padrão de 30 segundos para requisições RPC
+- **Tratamento de erros**: Tratamento de erros básico está implementado
 
 ## 👥 Autores
 
