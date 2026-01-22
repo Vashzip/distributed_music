@@ -53,18 +53,24 @@ O sistema demonstra dois tipos de comunicação:
 ```bash
 sudo apt update
 sudo apt install rabbitmq-server
-sudo systemctl start rabbitmq-server
 ```
 
 **Fedora:**
 ```bash
 sudo dnf install rabbitmq-server
-sudo systemctl start rabbitmq-server
 ```
 
 **macOS:**
 ```bash
 brew install rabbitmq
+```
+
+**Após instalar, inicie o serviço:**
+```bash
+# Linux (systemd)
+sudo systemctl start rabbitmq-server
+
+# macOS
 brew services start rabbitmq
 ```
 
@@ -99,17 +105,23 @@ O sistema precisa de **5 terminais separados** rodando simultaneamente. Cada com
 
 ### Passo 1: Verificar RabbitMQ
 
-Certifique-se de que o RabbitMQ está rodando:
+**Verificar se está rodando:**
 ```bash
 sudo systemctl status rabbitmq-server
 # ou
 rabbitmqctl status
 ```
 
-Se não estiver rodando, inicie:
+**Se não estiver rodando, apenas INICIE o serviço:**
 ```bash
+# Linux
 sudo systemctl start rabbitmq-server
+
+# macOS
+brew services start rabbitmq
 ```
+
+**Nota:** Se você ainda não instalou o RabbitMQ, volte à seção de [Instalação](#-instalação) acima.
 
 ### Passo 2: Iniciar os Serviços
 
