@@ -352,7 +352,6 @@ distributed_music/
 ├── requirements.txt          # Dependências Python
 ├── .gitignore               # Arquivos ignorados pelo Git
 ├── README.md                # Este arquivo
-├── COMO_EXECUTAR.md         # Guia detalhado de execução
 └── services/
     ├── catalog_service.py   # Serviço de catálogo
     ├── playlist_service.py  # Serviço de playlists
