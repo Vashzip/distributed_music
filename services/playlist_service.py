@@ -14,7 +14,7 @@ playlist_counter = 1
 
 def on_request(ch, method, props, body):
     try:
-    request = json.loads(body)
+        request = json.loads(body)
         action = request.get("action")
         response = {}
 

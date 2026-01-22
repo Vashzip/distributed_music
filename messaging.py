@@ -45,7 +45,7 @@ class RpcClient:
     def on_response(self, ch, method, props, body):
         if self.corr_id == props.correlation_id:
             try:
-            self.response = json.loads(body)
+                self.response = json.loads(body)
             except json.JSONDecodeError:
                 self.response = {'error': 'Resposta inválida do servidor'}
 
@@ -54,24 +54,24 @@ class RpcClient:
         self.corr_id = str(uuid.uuid4())
 
         try:
-        self.channel.basic_publish(
-            exchange='',
-            routing_key=queue,
-            properties=pika.BasicProperties(
-                reply_to=self.callback_queue,
-                correlation_id=self.corr_id
-            ),
-            body=json.dumps(message)
-        )
+            self.channel.basic_publish(
+                exchange='',
+                routing_key=queue,
+                properties=pika.BasicProperties(
+                    reply_to=self.callback_queue,
+                    correlation_id=self.corr_id
+                ),
+                body=json.dumps(message)
+            )
 
             import time
             start_time = time.time()
-        while self.response is None:
+            while self.response is None:
                 self.connection.process_data_events(time_limit=1)
                 if time.time() - start_time > timeout:
                     return {'error': 'Timeout na requisição'}
 
-        return self.response
+            return self.response
         except Exception as e:
             return {'error': f'Erro na comunicação RPC: {str(e)}'}
 
