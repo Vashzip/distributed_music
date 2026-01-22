@@ -96,3 +96,4 @@ channel.basic_consume(queue='user_rpc', on_message_callback=on_request)
 
 print("👤 Serviço de usuários ativo...")
 channel.start_consuming()
+        

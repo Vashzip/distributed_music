@@ -29,24 +29,24 @@ QUEUE = "catalog_rpc"
 
 def on_request(ch, method, props, body):
     try:
-        request = json.loads(body)
-        action = request.get("action")
+    request = json.loads(body)
+    action = request.get("action")
 
-        if action == "search_music":
-            query = request.get("query", "").lower()
+    if action == "search_music":
+        query = request.get("query", "").lower()
             if not query:
                 response = {"error": "query é obrigatório"}
             else:
-                result = [
-                    m for m in MUSIC_DB
-                    if query in m["title"].lower()
-                    or query in m["artist"].lower()
-                    or query in m["genre"].lower()
-                ]
-                response = {"result": result}
+        result = [
+            m for m in MUSIC_DB
+            if query in m["title"].lower()
+            or query in m["artist"].lower()
+            or query in m["genre"].lower()
+        ]
+        response = {"result": result}
 
-        elif action == "list_all":
-            response = {"result": MUSIC_DB}
+    elif action == "list_all":
+        response = {"result": MUSIC_DB}
 
         elif action == "get_song_by_id":
             song_id = request.get("song_id")
@@ -59,8 +59,8 @@ def on_request(ch, method, props, body):
                 else:
                     response = {"error": "Música não encontrada"}
 
-        else:
-            response = {"error": "Ação inválida"}
+    else:
+        response = {"error": "Ação inválida"}
 
     except json.JSONDecodeError:
         response = {"error": "JSON inválido"}
